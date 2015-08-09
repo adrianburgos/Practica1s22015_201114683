@@ -60,7 +60,11 @@ public class HiloVista implements Runnable{
         @Override
         public void actionPerformed(ActionEvent e) 
         {
-            listaObjetos.eliminar(posEliminar);
+            Elemento x = (Elemento)listaObjetos.eliminar(posEliminar);
+            if(x.getTipo() == 7)
+                Principal.luigi = false;
+            if(x.getTipo() == 8)
+                Principal.meta = false;
             System.out.println(listaObjetos.recorrido());
             cambio = true;
         }

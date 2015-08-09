@@ -15,9 +15,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -28,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.plaf.basic.BasicArrowButton;
 
 /**
  * @author Adrian Fernando Burgos Herrera
@@ -81,7 +84,7 @@ public class HiloConstruccion implements Runnable {
         //se establecen los valores iniciales de la ventanaConstruccion
         ventanaConstruccion.setBackground(new Color(245, 210, 57));
         ventanaConstruccion.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventanaConstruccion.setSize(816, 488);
+        ventanaConstruccion.setSize(863, 488);
         ventanaConstruccion.setLocationRelativeTo(null);
         ventanaConstruccion.setLayout(null);
         
@@ -107,10 +110,22 @@ public class HiloConstruccion implements Runnable {
         //spinners para la fila o columna que se desea eliminar
         JSpinner sFila = new JSpinner();
         JSpinner sColumna = new JSpinner();
-        sFila.setValue(1);
-        sColumna.setValue(1);
+        sFila.setValue(2);
+        sColumna.setValue(2);
         sFila.setBounds(10, 140, ancho + 11, alto + 1);
         sColumna.setBounds(90, 10, ancho + 11, alto);
+        
+        //se agregan los metodos de eliminar filas y columnas
+        bEliminarFila.addActionListener(new ActionEliminar("fila", sFila));
+        bEliminarColumna.addActionListener(new ActionEliminar("columna", sColumna));
+        
+        //se crea y agrega el boton para continuar a la pantalla de juego
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bJuego = new JButton(img);
+        bJuego.setBounds(790, 200, 50, 50);
+        bJuego.addActionListener(new ActionJuego(matriz));
+        ventanaConstruccion.add(bJuego);
         
         //se agregan los 4 botones a la ventanaConstruccion
         ventanaConstruccion.add(bAgregarFila);
@@ -288,6 +303,11 @@ public class HiloConstruccion implements Runnable {
                 }
                 columnaActual.lObjeto.setBounds(15 + (columna - 1) * ancho, (15 + 25 * matriz.getFilas()) - (fila * alto), ancho, alto);
                 System.out.println("Action del label: " + fila + ", " + columna);
+                MouseListener[] mouse = columnaActual.lObjeto.getMouseListeners();
+                for(int i = 0; i < mouse.length; i++)
+                {
+                    columnaActual.lObjeto.removeMouseListener(mouse[i]);
+                }
                 columnaActual.lObjeto.addMouseListener(new ActionMatriz(fila, columna));
                 panelMatriz.add(columnaActual.lObjeto);
                 columnaActual = columnaActual.derecha;
@@ -324,19 +344,21 @@ public class HiloConstruccion implements Runnable {
         @Override
         public void actionPerformed(ActionEvent e) 
         {
+            ListaDoble eliminados = new ListaDoble();
             if(tipo.equals("fila"))
             {//se agregara una fila a la matriz
-                matriz.eliminarFila((int) pos.getValue());
+                eliminados = matriz.eliminarFila((int) pos.getValue());
             }
             if (tipo.equals("columna"))
             {//se agregara una columna a la matriz
-                matriz.eliminarFila((int) pos.getValue());
+                eliminados = matriz.eliminarColumna((int) pos.getValue());
             }
+            while(!eliminados.estaVacia())
+                listaObjetos.insertar(eliminados.eliminar());
             cambio = true;
         }
-        
-        
     }
+    
     
     public class ActionAgregar implements ActionListener
     {
@@ -361,6 +383,26 @@ public class HiloConstruccion implements Runnable {
         }
         
     }
+    
+    public class ActionJuego implements ActionListener
+    {
+        MatrizOrtogonal matriz = null;
+
+        public ActionJuego(MatrizOrtogonal matriz) 
+        {
+            this.matriz = matriz;
+        }
+        
+        
+        @Override
+        public void actionPerformed(ActionEvent e) 
+        {
+            HiloJuego juego = new HiloJuego(matriz);
+            juego.iniciar();
+            hilo.stop();
+        }
+    }
+    
     public class ActionMatriz extends MouseAdapter
     {
         int fila, columna;

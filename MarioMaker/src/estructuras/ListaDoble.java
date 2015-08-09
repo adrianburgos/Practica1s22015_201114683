@@ -115,13 +115,13 @@ public class ListaDoble {
         }
     }
     
-    public void eliminar(int pos)
+    public Object eliminar(int pos)
     {
         if (pos == 1)
-            eliminarInicio();
+            return eliminarInicio();
         else
             if (pos == getNumDatos())
-                eliminarFinal();
+                return eliminarFinal();
             else
             {//se eliminara un elemento del final
                 NodoSimple actual = inicio;
@@ -135,12 +135,13 @@ public class ListaDoble {
                         actual.siguiente = null;
                         actual.anterior = null;
                         numDatos--;
+                        return actual.dato;
                     }
                     cont++;
                     actual = actual.siguiente;
                 }
             }
-            
+        return null;
     }
     
     public boolean buscarTipo(int tipo)

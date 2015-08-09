@@ -1,5 +1,6 @@
 package estructuras;
 
+import javax.swing.JOptionPane;
 import mariomaker.Elemento;
 
 /**
@@ -109,28 +110,96 @@ public class MatrizOrtogonal {
         columnas++;
     }
     
-    public void eliminarFila(int fila)
+    public ListaDoble eliminarFila(int fila)
     {
-        //se obtiene la fila que se desea eliminar
-        filaActual = inicio;
-        for(int i = 1; i < fila; i++)
-            filaActual = filaActual.arriba;
-        columnaActual = filaActual;
-        //se recorren todas las columnas a eliminar
-        while(columnaActual != null)
+        ListaDoble eliminados = new ListaDoble();
+        eliminados.setTipoEstrcutura(2);
+        if(fila > 1 && filas > 0)
         {
-            if(columnaActual.arriba == null)
-            {//se desean eliminar los elementos de hasta arriba
-                if(columnaActual.abajo == null)
-                {//se desea eliminar la unica fila
+            //se obtiene la fila que se desea eliminar
+            filaActual = inicio;
+            for(int i = 1; i < fila; i++)
+                filaActual = filaActual.arriba;
+            columnaActual = filaActual;        
+            //se recorren todas las columnas a eliminar
+            while(columnaActual != null)
+            {
+                if(columnaActual.arriba == null)
+                {//se desea eliminar la fila de hasta arriba
                     columnaActual.abajo.arriba = null;
                     columnaActual.abajo = null;
                 }
+                else
+                {//se desea eliminar una fila de en medio
+                    columnaActual.arriba.abajo = columnaActual.abajo;
+                    columnaActual.abajo.arriba = columnaActual.arriba;
+                    columnaActual.arriba = null;
+                    columnaActual.abajo = null;
+                }
+                if(columnaActual.izquierda != null)
+                {//existe un elemento a la izquierda de la columna que es esta eliminando
+                    columnaActual.izquierda.derecha = null;
+                    columnaActual.izquierda = null;
+                }
+                if(columnaActual.dato != null)
+                    eliminados.insertar(columnaActual.dato);
+                columnaActual = columnaActual.derecha;
             }
-            columnaActual = columnaActual.derecha;
+            filas--;
         }
-        filas--;
+        else
+        {//se desea eliminar la fila que contiene inicio
+            JOptionPane.showMessageDialog(null, "Se desea eliminar la final que contiene inicio");
+        }
+        System.out.println("fila: " + filas + 1 + " ELIMINADA");
+        return eliminados;
     }
+    
+    public ListaDoble eliminarColumna(int columna)
+    {
+        ListaDoble eliminados = new ListaDoble();
+        eliminados.setTipoEstrcutura(2);
+        if(columna > 1 && columnas > 0)
+        {
+            //se obtiene la columna que se desea eliminar
+            columnaActual = inicio;
+            for(int i = 1; i < columna; i++)
+                columnaActual = columnaActual.derecha;
+            filaActual = columnaActual;        
+            //se recorren todas las filas a eliminar
+            while(filaActual != null)
+            {
+                if(filaActual.derecha == null)
+                {//se desea eliminar la columna de hasta derecha
+                    filaActual.izquierda.derecha = null;
+                    filaActual.izquierda = null;
+                }
+                else
+                {//se desea eliminar una columna de en medio
+                    filaActual.derecha.izquierda = filaActual.izquierda;
+                    filaActual.izquierda.derecha = filaActual.derecha;
+                    filaActual.derecha = null;
+                    filaActual.izquierda = null;
+                }
+                if(filaActual.abajo != null)
+                {//existe un elemento abajo de la fila que es esta eliminando
+                    filaActual.abajo.arriba = null;
+                    filaActual.abajo = null;
+                }
+                if(filaActual.dato != null)
+                    eliminados.insertar(filaActual.dato);
+                filaActual = filaActual.arriba;
+            }
+            columnas--;
+        }
+        else
+        {//se desea eliminar la fila que contiene inicio
+            JOptionPane.showMessageDialog(null, "Se desea eliminar la final que contiene inicio");
+        }
+        System.out.println("fila: " + filas + 1 + " ELIMINADA");
+        return eliminados;
+    }
+    
     public String recorrido()
     {
         String salida = "";

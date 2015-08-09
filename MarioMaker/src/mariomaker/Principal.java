@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mariomaker;
 
 import estructuras.ListaDoble;
@@ -36,8 +31,8 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 public class Principal extends javax.swing.JFrame {
 
     ListaDoble listaObjetos = new ListaDoble();
-    boolean luigi = false;
-    boolean meta = false;
+    public static boolean luigi = false;
+    public static boolean meta = false;
     public ModoSeleccion modoSeleccion = new ModoSeleccion(listaObjetos);
     //VistaPrevia vistaPrevia = new VistaPrevia();
     SpriteSheet sheet;
@@ -260,9 +255,11 @@ public class Principal extends javax.swing.JFrame {
          */
         int seleccionado = radioButtonSeleccionado();
         insertarObjeto(tbNombre.getText(), seleccionado);
+        
     }//GEN-LAST:event_bAgregarActionPerformed
 
     private void bVistaPreviaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bVistaPreviaActionPerformed
+        HiloVista.cambio = true;
         vista = new HiloVista(listaObjetos);
         vista.iniciar();
         System.out.println(listaObjetos.recorrido());
