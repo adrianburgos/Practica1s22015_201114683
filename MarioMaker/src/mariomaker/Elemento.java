@@ -11,10 +11,12 @@ package mariomaker;
 public class Elemento {
     private String nombre;
     private int tipo;
+    private int direccion;
 
     public Elemento(String nombre, int tipo) {
         this.nombre = nombre;
         this.tipo = tipo;
+        this.direccion = 1;
     }
 
     
@@ -34,7 +36,12 @@ public class Elemento {
     public void setTipo(int tipo) {
         this.tipo = tipo;
     }
-    
-    
-    
+
+    public int getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(int direccion) {
+        this.direccion = direccion;
+    }    
 }

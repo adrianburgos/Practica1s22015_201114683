@@ -14,7 +14,7 @@ import mariomaker.Elemento;
     Las columnas se agregan a la derecha de la matriz
 */
 
-public class MatrizOrtogonal {
+public class MatrizOrtogonal implements Cloneable{
     public MultiNodo inicio, filaActual, columnaActual, filaSiguiente, columnaAnterior;
     int filas, columnas;
 
@@ -114,7 +114,7 @@ public class MatrizOrtogonal {
     {
         ListaDoble eliminados = new ListaDoble();
         eliminados.setTipoEstrcutura(2);
-        if(fila > 1 && filas > 0)
+        if(fila > 1 && filas > 1)
         {
             //se obtiene la fila que se desea eliminar
             filaActual = inicio;
@@ -159,7 +159,7 @@ public class MatrizOrtogonal {
     {
         ListaDoble eliminados = new ListaDoble();
         eliminados.setTipoEstrcutura(2);
-        if(columna > 1 && columnas > 0)
+        if(columna > 1 && columnas > 1)
         {
             //se obtiene la columna que se desea eliminar
             columnaActual = inicio;
@@ -241,6 +241,112 @@ public class MatrizOrtogonal {
         Elemento x = (Elemento) nodo.dato;
         int tipo = x.getTipo();
         return tipo;
+    }
+    
+    public String generarGrafo()
+    {
+        String grafo = "digraph G\n{\n";
+        grafo += "node [shape = box, style = \"rounded, filled\", color = black, fontcolor = white];\n";
+        grafo += "style = filled;\n";
+        grafo += "bgcolor = lightgray;\n";
+        grafo += "orientatio = landscape;\n";
+        grafo += "rankdir = LR;\n";
+        grafo += "center = true;\n";
+        grafo += "edge [arrowhead = dot, arrowtail = dot, color = red, dir = both];\n";
+        grafo += "label = \" Matriz ortogonal TABLERO \";\n";
+        
+        filaActual = columnaActual = inicio;
+        Elemento x = null;
+        int fila = 1, columna = 1;
+        //se generan los nodos de la matriz
+        while (filaActual != null)
+        {
+            while (columnaActual != null) 
+            {
+                x = (Elemento) columnaActual.dato;
+                grafo += "nodo" + ((fila * 10) + columna);
+                if(x != null)
+                {
+                    switch(x.getTipo())
+                    {
+                        case 1://suelo
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Suelo\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 2:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Pared\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 3:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Ficha\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 4:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Vida\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 5:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Goomba\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 6:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Koopa\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 7:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Personaje principal\n [" + fila + "," + columna +"]\"]";
+                            break;
+                        case 8:
+                            grafo+= "[label = \"Nombre: " + x.getNombre() + "\nTipo: Castillo\n [" + fila + "," + columna +"]\"]";
+                            break;
+                    }
+                }
+                else
+                {
+                    grafo+= "[label = \"Vacio\n [" + fila + "," + columna +"]\"]";
+                }
+                grafo += ";\n";
+                columna++;
+                columnaActual = columnaActual.derecha;
+            }
+            columna = 1;
+            fila++;
+            filaActual = filaActual.arriba;
+            columnaActual = filaActual;
+        }
+        filaActual = columnaActual = inicio;
+        fila =1;
+        columna = 1;
+        //se crean los enlaces de la matriz
+        while (filaActual != null)
+        {
+            while (columnaActual != null) 
+            {
+                if(columnaActual.arriba != null)
+                {
+                    grafo += "nodo" + ((fila * 10) + columna) + " -> nodo" + ((fila+1) * 10 + columna) +";\n";
+                }
+                if(columnaActual.derecha != null)
+                {
+                    grafo += "nodo" + ((fila * 10) + columna) + " -> nodo" + (fila * 10 + (columna+1)) +";\n";
+                }
+                columna++;
+                columnaActual = columnaActual.derecha;
+            }
+            columna = 1;
+            fila++;
+            filaActual = filaActual.arriba;
+            columnaActual = filaActual;
+        }
+        
+        grafo += "}";
+        return grafo;
+    }
+    
+    
+    
+    public Object clone(){
+        Object obj=null;
+        try{
+            obj=super.clone();
+        }catch(CloneNotSupportedException ex){
+            System.out.println(" no se puede duplicar");
+        }
+        return obj;
     }
 
     public int getFilas() {

@@ -17,7 +17,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -27,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -38,7 +43,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
  */
 
 public class HiloConstruccion implements Runnable {
-    JFrame ventanaConstruccion = new JFrame("Construccion");
+    public static JFrame ventanaConstruccion = new JFrame("Construccion");
     JPanel panelLista, panelMatriz;
     
     URL url = null;
@@ -53,6 +58,7 @@ public class HiloConstruccion implements Runnable {
     private SpriteSheet sheet;
     //si surge algun cambio en la lista de elementos
     private static boolean cambio = true;
+    String dir = "C:/Users/Adrian/Documents/GitHub/Practica1s22015_201114683/MarioMaker/src";
     
     public HiloConstruccion(ListaDoble listaObjetos, MatrizOrtogonal matriz)
     {
@@ -123,9 +129,31 @@ public class HiloConstruccion implements Runnable {
         url = getClass().getResource("/imagenes/juego.png");
         img = new ImageIcon(url);
         JButton bJuego = new JButton(img);
-        bJuego.setBounds(790, 200, 50, 50);
+        bJuego.setBounds(790, 75, 50, 50);
         bJuego.addActionListener(new ActionJuego(matriz));
         ventanaConstruccion.add(bJuego);
+        
+        //se crea y agrega el boton para generar grafo de listaObjetos
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bLita = new JButton("lista");
+        bLita.setBounds(790, 175, 50, 50);
+        bLita.addActionListener(new ActionLista(listaObjetos));
+        ventanaConstruccion.add(bLita);
+        
+        //se crea y agrega el boton para generar el resumen de listaObjetos
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bResumen = new JButton("resumen");
+        bResumen.setBounds(790, 275, 50, 50);
+        bResumen.addActionListener(new ActionResumen(listaObjetos));
+        
+        //se crea y agrega el boton para generar grafo de matriz
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bMatriz = new JButton("matriz");
+        bMatriz.setBounds(790, 375, 50, 50);
+        bMatriz.addActionListener(new ActionMatrizGrafica(matriz));
         
         //se agregan los 4 botones a la ventanaConstruccion
         ventanaConstruccion.add(bAgregarFila);
@@ -135,6 +163,9 @@ public class HiloConstruccion implements Runnable {
         //se agregan los spinners a la ventanaConstruccion
         ventanaConstruccion.add(sFila);
         ventanaConstruccion.add(sColumna);
+        //se agregan los botones de la matriz y el boton de resumen
+        ventanaConstruccion.add(bResumen);
+        ventanaConstruccion.add(bMatriz);
     }
     
     public void graficar()
@@ -399,6 +430,7 @@ public class HiloConstruccion implements Runnable {
         {
             HiloJuego juego = new HiloJuego(matriz);
             juego.iniciar();
+            HiloConstruccion.ventanaConstruccion.setVisible(false);
             hilo.stop();
         }
     }
@@ -448,6 +480,139 @@ public class HiloConstruccion implements Runnable {
             }
             cambio = true;
         }
+    }
+    
+    public class ActionResumen implements ActionListener
+    {
+        ListaDoble listaObjetos;
+
+        public ActionResumen(ListaDoble listaObjetos) 
+        {
+            this.listaObjetos = listaObjetos;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) 
+        {
+            JOptionPane.showMessageDialog(null, listaObjetos.resumen());
+        }
+    }
+    
+    public class ActionLista implements ActionListener
+    {
+        ListaDoble listaObjetos;
+
+        public ActionLista(ListaDoble listaObjetos) 
+        {
+            this.listaObjetos = listaObjetos;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) 
+        {
+            FileWriter direccion = null;
+            PrintWriter print = null;
+            try
+            {
+                direccion = new FileWriter(dir + "/estructuras/grafo.dot");
+                print = new PrintWriter(direccion);
+                print.println(listaObjetos.generarGrafo());
+                print.close();
+                direccion.close();
+            }
+            catch(IOException ex)
+            {
+                System.out.println("no se pudo guardar el archivo");
+            }
+            try
+            {
+                ProcessBuilder process;
+                process = new ProcessBuilder("C:/Program Files/Graphviz2.38/bin/dot.exe", "-Tpng", "-o", dir + "/estructuras/grafo.png", dir +  "/estructuras/grafo.dot");
+                process.redirectErrorStream(true);
+                process.start();
+            }
+            catch(Exception ex)
+            {
+                System.out.println("ERROR: " + ex.getMessage());
+            }
+            try {
+                hilo.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(HiloConstruccion.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            JFrame grafo = new JFrame("Lista Doble");
+            grafo.getContentPane().removeAll();
+            url = getClass().getResource("/estructuras/grafo.png");
+            img = new ImageIcon(url);
+            JPanel p = new JPanel();
+            JScrollPane spListaObjetos = new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            spListaObjetos.setBounds(15, 15, 770, 420);
+            JLabel lImagen = new JLabel(img);
+            p.add(lImagen);
+            grafo.setLayout(null);
+            grafo.add(spListaObjetos);
+            grafo.setSize(816, 488);
+            grafo.setLocationRelativeTo(null);
+            grafo.setVisible(true);
+            grafo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        }
+        
+    }
+    
+    public class ActionMatrizGrafica implements ActionListener
+    {
+        MatrizOrtogonal matriz;
+
+        public ActionMatrizGrafica(MatrizOrtogonal matriz) 
+        {
+            this.matriz = matriz;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) 
+        {
+            FileWriter direccion = null;
+            PrintWriter print = null;
+            try
+            {
+                direccion = new FileWriter(dir + "/estructuras/grafo1.dot");
+                print = new PrintWriter(direccion);
+                print.println(matriz.generarGrafo());
+                print.close();
+                direccion.close();
+            }
+            catch(IOException ex)
+            {
+                System.out.println("no se pudo guardar el archivo");
+            }
+            try
+            {
+                ProcessBuilder process;
+                process = new ProcessBuilder("C:/Program Files/Graphviz2.38/bin/dot.exe", "-Tpng", "-o", dir + "/estructuras/grafo1.png", dir +  "/estructuras/grafo1.dot");
+                process.redirectErrorStream(true);
+                process.start();
+            }
+            catch(Exception ex)
+            {
+                System.out.println("ERROR: " + ex.getMessage());
+            }
+            JFrame grafo = new JFrame("Matriz Ortogonal");
+            grafo.getContentPane().removeAll();
+            url = getClass().getResource("/estructuras/grafo1.png");
+            img = new ImageIcon(url);
+            JPanel p = new JPanel();
+            JScrollPane spMatriz = new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            spMatriz.setBounds(15, 15, 770, 420);
+            JLabel lImagen = new JLabel(img);
+            p.add(lImagen);
+            grafo.setLayout(null);
+            grafo.add(spMatriz);
+            grafo.setSize(816, 488);
+            grafo.setLocationRelativeTo(null);
+            grafo.setVisible(true);
+            grafo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        }
+        
     }
     
     @Override

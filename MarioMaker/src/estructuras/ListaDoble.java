@@ -197,6 +197,91 @@ public class ListaDoble {
         }
         return salida;
     }
+    
+    public String generarGrafo()
+    {
+        String grafo = "digraph G\n{\n";
+        grafo += "node [shape = box, style = \"rounded, filled\", color = black, fontcolor = white];\n";
+        grafo += "style = filled;\n";
+        grafo += "bgcolor = lightgray;\n";
+        grafo += "orientatio = landscape;\n";
+        grafo += "center = true;\n";
+        grafo += "edge [arrowhead = dot, arrowtail = dot, color = red, dir = both];\n";
+        grafo += "label = \" Lista doblemente enlazada de OBJETOS \";\n";
+        
+        NodoSimple actual = inicio;
+        int cont = 1;
+        Elemento x;
+        while (actual != null)
+        {//se crean los nodos del grafo
+            x = (Elemento) actual.dato;
+            grafo += "nodo" + cont + "[label = \"Nombre: " + x.getNombre() + "\"];\n";
+            cont++;
+            actual = actual.siguiente;
+        }
+        
+        actual = inicio;
+        cont = 1;
+        while (actual != null)
+        {//se crean los enlaces entre nodos del grafo
+            if(actual.siguiente != null)
+            {
+                grafo += "nodo" + cont + " -> nodo" + (cont+1) + ";\n";
+                cont++;
+            }
+            actual = actual.siguiente;
+        }
+        grafo += "}";
+        return grafo;
+    }
+    
+    public String resumen()
+    {
+        NodoSimple actual = inicio;
+        int suelos = 0, paredes = 0, fichas = 0, vidas = 0, goombas = 0, koopas = 0, personaje = 0, castillo = 0;
+        Elemento x;
+        while (actual != null)
+        {
+            x = (Elemento) actual.dato;
+            switch(x.getTipo())
+            {
+                case 1:
+                    suelos++;
+                    break;
+                case 2:
+                    paredes++;
+                    break;
+                case 3:
+                    fichas++;
+                    break;
+                case 4:
+                    vidas++;
+                    break;
+                case 5:
+                    goombas++;
+                    break;
+                case 6:
+                    koopas++;
+                    break;
+                case 7:
+                    personaje++;
+                    break;
+                case 8:
+                    castillo++;
+                    break;
+            }
+            actual = actual.siguiente;
+        }
+        String salida = "Suelos: " + suelos + "\n";
+        salida += "Paredes: " + paredes + "\n";
+        salida += "Fichas: " + fichas + "\n";
+        salida += "Vidas: " + vidas + "\n";
+        salida += "Goomba: " + goombas + "\n";
+        salida += "Koopa: " + koopas + "\n";
+        salida += "Personaje Principal: " + personaje + "\n";
+        salida += "Castillo: " + castillo + "\n";
+        return salida;
+    }
 
     public int getTipoEstrcutura() {
         return tipoEstrcutura;
