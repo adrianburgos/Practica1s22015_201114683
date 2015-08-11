@@ -206,7 +206,7 @@ public class ListaDoble {
         grafo += "bgcolor = lightgray;\n";
         grafo += "orientatio = landscape;\n";
         grafo += "center = true;\n";
-        grafo += "edge [arrowhead = dot, arrowtail = dot, color = red, dir = both];\n";
+        grafo += "edge [arrowhead = odot, arrowtail = odot, color = red, dir = both];\n";
         grafo += "label = \" Lista doblemente enlazada de OBJETOS \";\n";
         
         NodoSimple actual = inicio;

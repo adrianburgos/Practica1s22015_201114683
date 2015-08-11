@@ -6,24 +6,54 @@ bgcolor = lightgray;
 orientatio = landscape;
 rankdir = LR;
 center = true;
-edge [arrowhead = dot, arrowtail = dot, color = red, dir = both];
+edge [arrowhead = odot, arrowtail = odot, color = red, dir = both];
 label = " Matriz ortogonal TABLERO ";
 nodo11[label = "Vacio
  [1,1]"];
-nodo12[label = "Vacio
+nodo12[label = "Nombre: 
+Tipo: Suelo
  [1,2]"];
-nodo13[label = "Vacio
+nodo13[label = "Nombre: 
+Tipo: Suelo
  [1,3]"];
-nodo14[label = "Vacio
+nodo14[label = "Nombre: 
+Tipo: Suelo
  [1,4]"];
-nodo21[label = "Vacio
+nodo15[label = "Nombre: 
+Tipo: Suelo
+ [1,5]"];
+nodo16[label = "Nombre: 
+Tipo: Suelo
+ [1,6]"];
+nodo17[label = "Nombre: 
+Tipo: Suelo
+ [1,7]"];
+nodo18[label = "Nombre: 
+Tipo: Suelo
+ [1,8]"];
+nodo19[label = "Vacio
+ [1,9]"];
+nodo21[label = "Nombre: 
+Tipo: Suelo
  [2,1]"];
-nodo22[label = "Vacio
+nodo22[label = "Nombre: 
+Tipo: Goomba
  [2,2]"];
 nodo23[label = "Vacio
  [2,3]"];
 nodo24[label = "Vacio
  [2,4]"];
+nodo25[label = "Vacio
+ [2,5]"];
+nodo26[label = "Vacio
+ [2,6]"];
+nodo27[label = "Vacio
+ [2,7]"];
+nodo28[label = "Vacio
+ [2,8]"];
+nodo29[label = "Nombre: 
+Tipo: Suelo
+ [2,9]"];
 nodo11 -> nodo21;
 nodo11 -> nodo12;
 nodo12 -> nodo22;
@@ -31,7 +61,22 @@ nodo12 -> nodo13;
 nodo13 -> nodo23;
 nodo13 -> nodo14;
 nodo14 -> nodo24;
+nodo14 -> nodo15;
+nodo15 -> nodo25;
+nodo15 -> nodo16;
+nodo16 -> nodo26;
+nodo16 -> nodo17;
+nodo17 -> nodo27;
+nodo17 -> nodo18;
+nodo18 -> nodo28;
+nodo18 -> nodo19;
+nodo19 -> nodo29;
 nodo21 -> nodo22;
 nodo22 -> nodo23;
 nodo23 -> nodo24;
+nodo24 -> nodo25;
+nodo25 -> nodo26;
+nodo26 -> nodo27;
+nodo27 -> nodo28;
+nodo28 -> nodo29;
 }

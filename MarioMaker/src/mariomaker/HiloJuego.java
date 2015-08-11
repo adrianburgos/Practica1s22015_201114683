@@ -10,14 +10,22 @@ import estructuras.MatrizOrtogonal;
 import estructuras.MultiNodo;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,7 +37,6 @@ import javax.swing.JScrollPane;
 public class HiloJuego implements Runnable{
     JFrame ventanaJuego = new JFrame("Juego");
     JPanel panelMatriz;
-    int vidas = 1;
     URL url = null;
     ImageIcon img = null;
     MultiNodo filaActual, columnaActual;
@@ -45,6 +52,12 @@ public class HiloJuego implements Runnable{
     //si surge algun cambio en la lista de elementos
     private static boolean cambio = true;
     private int cont = 0;
+    static int contTeclado = 0;
+    //variables utilizadas para control de vidas y punteo en el juego
+    static int punteo = 0;
+    static int vidas = 1;
+    
+    String dir = "C:/Users/Adrian/Documents/GitHub/Practica1s22015_201114683/MarioMaker/src";
 
     public HiloJuego(MatrizOrtogonal matriz) 
     {
@@ -65,18 +78,68 @@ public class HiloJuego implements Runnable{
                 return new Dimension(30 + 25 * columnas, 15 + 25 * filas);
             }
         };
+        
+        //se crea y agrega el boton para pausar y reanudar el juego
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bPausa = new JButton("matriz");
+        bPausa.setBounds(145, 15, 50, 50);
+        bPausa.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (cambio) 
+                {
+                    cambio = false;                    
+                }
+                else
+                {
+                    cambio = true;
+                }
+            }
+            
+        });
+        
+        //se crea y agrega el boton para pausar y reanudar el juego
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bReiniciar = new JButton("matriz");
+        bReiniciar.setBounds(210, 15, 50, 50);
+        bReiniciar.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                matriz = m;
+                x = matriz.clone();
+                m = (MatrizOrtogonal) x;
+            }
+        });
+        
+        //se crea y agrega el boton para generar grafo de matriz
+        url = getClass().getResource("/imagenes/juego.png");
+        img = new ImageIcon(url);
+        JButton bMatriz = new JButton("matriz");
+        bMatriz.setBounds(80, 15, 50, 50);
+        bMatriz.addActionListener(new ActionMatrizGrafica(matriz));
+        
+        //se agregan los botones de grafica, pausa, play y reinicio a la ventanaJuego
+        ventanaJuego.add(bMatriz);
+        ventanaJuego.add(bPausa);
+        ventanaJuego.add(bReiniciar);
+        
         //se establecen los valores iniciales de la ventanaJuego
         ventanaJuego.setBackground(new Color(245, 210, 57));
+        ventanaJuego.setLayout(null);
         ventanaJuego.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ventanaJuego.setSize(816, 488);
         ventanaJuego.setLocationRelativeTo(null);
-        ventanaJuego.setLayout(null);
+        ventanaJuego.addKeyListener(new Teclado(matriz));
+        ventanaJuego.setFocusable(true);
     }
     
     private void graficar()
     {
         JScrollPane spMatriz = new JScrollPane(panelMatriz, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
         //se establece la posicion de los ScrollPane
         spMatriz.setBounds(15, 80, 770, 355);
         //obtiene la direccion del presonaje que se va a graficar
@@ -210,50 +273,89 @@ public class HiloJuego implements Runnable{
                         //el objeto en la columna es goomba o koopa
                         case 5://goomba
                         case 6://koopa
-                            Elemento abajo = (Elemento)columnaActual.abajo.dato;
-                            if(abajo == null)
+                            if(columnaActual.abajo != null)
                             {
-                                if(columnaActual.abajo != null)
-                                {//se tienen filas abajo
-                                    columnaActual.abajo.dato = columnaActual.dato;
-                                }
-                                columnaActual.dato = null;
-                            }
-                            else
-                            {//si hay algun objeto abajo se mueve en la direccion que le corresponde
-                                direccion = x.getDireccion();
-                                if(direccion == 1)
-                                {//el objeto se tiene que mover a la derecha
-                                    Elemento derecha = (Elemento) columnaActual.derecha.dato;
-                                    if(derecha == null)
-                                    {//se mueve el objeto a la derecha
-                                        columnaActual.derecha.dato = columnaActual.dato;
-                                        columnaActual.dato = null;
-                                        columnaActual = columnaActual.derecha;
+                                Elemento abajo = (Elemento)columnaActual.abajo.dato;
+                                if(abajo == null)
+                                {//no hay objeto para detenerce
+                                    if(columnaActual.abajo != null)
+                                    {//se tienen filas abajo
+                                        columnaActual.abajo.dato = columnaActual.dato;
                                     }
-                                    else
-                                    {//se le cambia la direccion al objeto
-                                        x.setDireccion(-1);
-                                        columnaActual.dato = x;
-                                    }
+                                    columnaActual.dato = null;
                                 }
                                 else
-                                {//el objeto se tiene que mover a la izquierda
-                                    Elemento izquierda = (Elemento) columnaActual.izquierda.dato;
-                                    if(izquierda == null)
-                                    {//se mueve el objeto a la derecha
-                                        columnaActual.izquierda.dato = columnaActual.dato;
-                                        columnaActual.dato = null;
+                                {//si hay algun objeto abajo se mueve en la direccion que le corresponde
+                                    direccion = x.getDireccion();
+                                    if(direccion == 1)
+                                    {//el objeto se tiene que mover a la derecha
+                                        Elemento derecha = (Elemento) columnaActual.derecha.dato;
+                                        if(derecha == null)
+                                        {//se mueve el objeto a la derecha
+                                            columnaActual.derecha.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                            columnaActual = columnaActual.derecha;
+                                        }
+                                        else
+                                        {//se le cambia la direccion al objeto
+                                            x.setDireccion(-1);
+                                            columnaActual.dato = x;
+                                        }
                                     }
                                     else
-                                    {//se le cambia la direccion al objeto
-                                        x.setDireccion(1);
-                                        columnaActual.dato = x;
-                                    }                                
+                                    {//el objeto se tiene que mover a la izquierda
+                                        Elemento izquierda = (Elemento) columnaActual.izquierda.dato;
+                                        if(izquierda == null)
+                                        {//se mueve el objeto a la derecha
+                                            columnaActual.izquierda.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                        }
+                                        else
+                                        {//se le cambia la direccion al objeto
+                                            x.setDireccion(1);
+                                            columnaActual.dato = x;
+                                        }                                
+                                    }
                                 }
                             }
+                            else
+                                columnaActual.dato = null;
                             break;
                         case 7://luigi
+                            if(columnaActual.abajo != null)
+                            {//se tienen filas abajo
+                                Elemento abajo = (Elemento)columnaActual.abajo.dato;
+                                if(abajo == null)
+                                {//no hay objeto para detenerce
+                                    columnaActual.abajo.dato = columnaActual.dato;
+                                    columnaActual.dato = null;
+                                }
+                                else
+                                {
+                                    switch(abajo.getTipo())
+                                    {
+                                        case 3://ficha
+                                            columnaActual.abajo.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                            punteo += 1;
+                                            break;
+                                        case 4://vida
+                                            columnaActual.abajo.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                            vidas += 1;
+                                            break;
+                                        case 5://goomba
+                                            columnaActual.abajo.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                            break;
+                                        case 6://koopa
+                                            
+                                            break;
+                                    }
+                                }
+                            }
+                            else
+                                columnaActual.dato = null;
                             break;
                         case 8://castillo
                             break;
@@ -279,12 +381,19 @@ public class HiloJuego implements Runnable{
                 inicializar();
                 graficar();
                 actualizar();
+                try {
+                    hilo.sleep(500);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-            try {
-                hilo.sleep(300);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            else
+                try {
+                    hilo.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
         }
         detener();
     }
@@ -311,5 +420,149 @@ public class HiloJuego implements Runnable{
             System.out.println("Error al detener el hilo");
         }
     }
+    
+    public class ActionMatrizGrafica implements ActionListener
+    {
+        MatrizOrtogonal matriz;
+
+        public ActionMatrizGrafica(MatrizOrtogonal matriz) 
+        {
+            this.matriz = matriz;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) 
+        {
+            FileWriter direccion = null;
+            PrintWriter print = null;
+            try
+            {
+                direccion = new FileWriter(dir + "/estructuras/grafo1.dot");
+                print = new PrintWriter(direccion);
+                print.println(matriz.generarGrafo());
+                print.close();
+                direccion.close();
+            }
+            catch(IOException ex)
+            {
+                System.out.println("no se pudo guardar el archivo");
+            }
+            try
+            {
+                ProcessBuilder process;
+                process = new ProcessBuilder("C:/Program Files/Graphviz2.38/bin/dot.exe", "-Tpng", "-o", dir + "/estructuras/grafo1.png", dir +  "/estructuras/grafo1.dot");
+                process.redirectErrorStream(true);
+                process.start();
+            }
+            catch(Exception ex)
+            {
+                System.out.println("ERROR: " + ex.getMessage());
+            }
+            try
+            {
+                Runtime.getRuntime().exec("cmd /c " + dir + "/estructuras/grafo1.png");
+                Runtime.getRuntime().exec("cmd /c " + dir + "/estructuras/grafo1.png");
+            }
+            catch(IOException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+        }
+    }
+        
+    
+
+    public class Teclado implements KeyListener
+    {
+        MatrizOrtogonal matriz;
+        MultiNodo filaActual, columnaActual, personaje;
+        public Teclado(MatrizOrtogonal matriz) {
+            this.matriz = matriz;
+        }
+        
+        @Override
+        public void keyTyped(KeyEvent e) {
+
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            contTeclado++;
+            if (contTeclado % 10000 == 1)
+            {
+                if (e.VK_LEFT == e.getKeyCode())
+                {
+                    filaActual = columnaActual = matriz.inicio;
+                    //se busca al personaje
+                    while(filaActual != null)
+                    {
+                        while(columnaActual != null)
+                        {
+                            
+                            Elemento x = (Elemento) columnaActual.dato;
+                            if(x != null)
+                                if(x.getTipo() == 7)//se obtiene el nodo del personaje
+                                    personaje = columnaActual;
+                            columnaActual = columnaActual.derecha;
+                        }
+                        filaActual = filaActual.arriba;
+                        columnaActual = filaActual;
+                    }
+                    Elemento x = (Elemento) personaje.dato;
+                    if(x.getDireccion() == 1)
+                        x.setDireccion(-1);
+                    else
+                    {
+                        if(personaje.izquierda.dato == null)
+                        {//el personaje se puede mover para la izquierda
+                            personaje.izquierda.dato = x;
+                            personaje.dato = null;
+                        }
+                    }
+                }
+                if (e.VK_RIGHT == e.getKeyCode())
+                {
+                    filaActual = columnaActual = matriz.inicio;
+                    //se busca al personaje
+                    while(filaActual != null)
+                    {
+                        while(columnaActual != null)
+                        {
+                            
+                            Elemento x = (Elemento) columnaActual.dato;
+                            if(x != null)
+                                if(x.getTipo() == 7)//se obtiene el nodo del personaje
+                                    personaje = columnaActual;
+                            columnaActual = columnaActual.derecha;
+                        }
+                        filaActual = filaActual.arriba;
+                        columnaActual = filaActual;
+                    }
+                    Elemento x = (Elemento) personaje.dato;
+                    if(x.getDireccion() == -1)
+                        x.setDireccion(1);
+                    else
+                    {
+                        if(personaje.derecha.dato == null)
+                        {//el personaje se puede mover para la derecha
+                            personaje.derecha.dato = x;
+                            personaje.dato = null;
+                        }                        
+                    }
+                }
+                if (e.VK_UP == e.getKeyCode())
+                {
+                    System.out.println("Arriba");
+                }
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            contTeclado = 0;
+        }
+        
+    }
+    
     
 }

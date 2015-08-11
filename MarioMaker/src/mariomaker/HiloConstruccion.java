@@ -540,21 +540,14 @@ public class HiloConstruccion implements Runnable {
             } catch (InterruptedException ex) {
                 Logger.getLogger(HiloConstruccion.class.getName()).log(Level.SEVERE, null, ex);
             }
-            JFrame grafo = new JFrame("Lista Doble");
-            grafo.getContentPane().removeAll();
-            url = getClass().getResource("/estructuras/grafo.png");
-            img = new ImageIcon(url);
-            JPanel p = new JPanel();
-            JScrollPane spListaObjetos = new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            spListaObjetos.setBounds(15, 15, 770, 420);
-            JLabel lImagen = new JLabel(img);
-            p.add(lImagen);
-            grafo.setLayout(null);
-            grafo.add(spListaObjetos);
-            grafo.setSize(816, 488);
-            grafo.setLocationRelativeTo(null);
-            grafo.setVisible(true);
-            grafo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            try
+            {
+                Runtime.getRuntime().exec("cmd /c " + dir + "/estructuras/grafo.png");
+            }
+            catch(IOException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
         }
         
     }
@@ -596,21 +589,14 @@ public class HiloConstruccion implements Runnable {
             {
                 System.out.println("ERROR: " + ex.getMessage());
             }
-            JFrame grafo = new JFrame("Matriz Ortogonal");
-            grafo.getContentPane().removeAll();
-            url = getClass().getResource("/estructuras/grafo1.png");
-            img = new ImageIcon(url);
-            JPanel p = new JPanel();
-            JScrollPane spMatriz = new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            spMatriz.setBounds(15, 15, 770, 420);
-            JLabel lImagen = new JLabel(img);
-            p.add(lImagen);
-            grafo.setLayout(null);
-            grafo.add(spMatriz);
-            grafo.setSize(816, 488);
-            grafo.setLocationRelativeTo(null);
-            grafo.setVisible(true);
-            grafo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            try
+            {
+                Runtime.getRuntime().exec("cmd /c " + dir + "/estructuras/grafo1.png");
+            }
+            catch(IOException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
         }
         
     }

@@ -252,7 +252,7 @@ public class MatrizOrtogonal implements Cloneable{
         grafo += "orientatio = landscape;\n";
         grafo += "rankdir = LR;\n";
         grafo += "center = true;\n";
-        grafo += "edge [arrowhead = dot, arrowtail = dot, color = red, dir = both];\n";
+        grafo += "edge [arrowhead = odot, arrowtail = odot, color = red, dir = both];\n";
         grafo += "label = \" Matriz ortogonal TABLERO \";\n";
         
         filaActual = columnaActual = inicio;
@@ -309,7 +309,7 @@ public class MatrizOrtogonal implements Cloneable{
             columnaActual = filaActual;
         }
         filaActual = columnaActual = inicio;
-        fila =1;
+        fila = 1;
         columna = 1;
         //se crean los enlaces de la matriz
         while (filaActual != null)
