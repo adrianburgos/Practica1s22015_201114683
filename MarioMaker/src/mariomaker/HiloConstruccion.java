@@ -134,25 +134,27 @@ public class HiloConstruccion implements Runnable {
         ventanaConstruccion.add(bJuego);
         
         //se crea y agrega el boton para generar grafo de listaObjetos
-        url = getClass().getResource("/imagenes/juego.png");
+        url = getClass().getResource("/imagenes/lista.png");
         img = new ImageIcon(url);
-        JButton bLita = new JButton("lista");
+        JButton bLita = new JButton(img);
         bLita.setBounds(790, 175, 50, 50);
         bLita.addActionListener(new ActionLista(listaObjetos));
+        bLita.setContentAreaFilled(false);
         ventanaConstruccion.add(bLita);
         
         //se crea y agrega el boton para generar el resumen de listaObjetos
-        url = getClass().getResource("/imagenes/juego.png");
+        url = getClass().getResource("/imagenes/resumen.png");
         img = new ImageIcon(url);
-        JButton bResumen = new JButton("resumen");
+        JButton bResumen = new JButton(img);
         bResumen.setBounds(790, 275, 50, 50);
         bResumen.addActionListener(new ActionResumen(listaObjetos));
         
         //se crea y agrega el boton para generar grafo de matriz
-        url = getClass().getResource("/imagenes/juego.png");
+        url = getClass().getResource("/imagenes/matriz.png");
         img = new ImageIcon(url);
-        JButton bMatriz = new JButton("matriz");
+        JButton bMatriz = new JButton(img);
         bMatriz.setBounds(790, 375, 50, 50);
+        bMatriz.setContentAreaFilled(false);
         bMatriz.addActionListener(new ActionMatrizGrafica(matriz));
         
         //se agregan los 4 botones a la ventanaConstruccion

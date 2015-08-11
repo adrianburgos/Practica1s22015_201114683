@@ -27,14 +27,21 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 /**
  *
  * @author Adrian
  */
 public class HiloJuego implements Runnable{
+    
+    JLabel lVidas = new JLabel();
+    JLabel lPunteo = new JLabel();
+    
     JFrame ventanaJuego = new JFrame("Juego");
     JPanel panelMatriz;
     URL url = null;
@@ -56,7 +63,7 @@ public class HiloJuego implements Runnable{
     //variables utilizadas para control de vidas y punteo en el juego
     static int punteo = 0;
     static int vidas = 1;
-    
+    boolean gano = false;
     String dir = "C:/Users/Adrian/Documents/GitHub/Practica1s22015_201114683/MarioMaker/src";
 
     public HiloJuego(MatrizOrtogonal matriz) 
@@ -80,9 +87,9 @@ public class HiloJuego implements Runnable{
         };
         
         //se crea y agrega el boton para pausar y reanudar el juego
-        url = getClass().getResource("/imagenes/juego.png");
+        url = getClass().getResource("/imagenes/pausa.png");
         img = new ImageIcon(url);
-        JButton bPausa = new JButton("matriz");
+        JButton bPausa = new JButton(img);
         bPausa.setBounds(145, 15, 50, 50);
         bPausa.addActionListener(new ActionListener(){
 
@@ -101,31 +108,40 @@ public class HiloJuego implements Runnable{
         });
         
         //se crea y agrega el boton para pausar y reanudar el juego
-        url = getClass().getResource("/imagenes/juego.png");
-        img = new ImageIcon(url);
-        JButton bReiniciar = new JButton("matriz");
-        bReiniciar.setBounds(210, 15, 50, 50);
-        bReiniciar.addActionListener(new ActionListener(){
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                matriz = m;
-                x = matriz.clone();
-                m = (MatrizOrtogonal) x;
-            }
-        });
+//        url = getClass().getResource("/imagenes/juego.png");
+//        img = new ImageIcon(url);
+//        JButton bReiniciar = new JButton("matriz");
+//        bReiniciar.setBounds(210, 15, 50, 50);
+//        bReiniciar.addActionListener(new ActionListener(){
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                matriz = m;
+//                x = matriz.clone();
+//                m = (MatrizOrtogonal) x;
+//            }
+//        });
         
-        //se crea y agrega el boton para generar grafo de matriz
-        url = getClass().getResource("/imagenes/juego.png");
+        //se crea el boton para generar grafo de matriz
+        url = getClass().getResource("/imagenes/matriz.png");
         img = new ImageIcon(url);
-        JButton bMatriz = new JButton("matriz");
+        JButton bMatriz = new JButton(img);
         bMatriz.setBounds(80, 15, 50, 50);
         bMatriz.addActionListener(new ActionMatrizGrafica(matriz));
         
         //se agregan los botones de grafica, pausa, play y reinicio a la ventanaJuego
         ventanaJuego.add(bMatriz);
         ventanaJuego.add(bPausa);
-        ventanaJuego.add(bReiniciar);
+        //ventanaJuego.add(bReiniciar);
+        
+        //se crean los labels de vidas y punteo
+        lVidas.setBounds(210, 15, 100, 20);
+        lPunteo.setBounds(210, 35, 100, 20);
+        
+        //se agregan los labels de vidas y punteo a ventanaJuego
+        ventanaJuego.add(lVidas);
+        ventanaJuego.add(lPunteo);
+        
         
         //se establecen los valores iniciales de la ventanaJuego
         ventanaJuego.setBackground(new Color(245, 210, 57));
@@ -235,7 +251,7 @@ public class HiloJuego implements Runnable{
                 {
                     url = getClass().getResource("/imagenes/vacio.png");
                     img = new ImageIcon(url);
-                    columnaActual.lObjeto.setIcon(img);
+                    columnaActual.lObjeto.setIcon(null);
                 }
                 columnaActual.lObjeto.setBounds(15 + (columna - 1) * ancho, (15 + 25 * matriz.getFilas()) - (fila * alto), ancho, alto);
                 panelMatriz.add(columnaActual.lObjeto);
@@ -248,7 +264,8 @@ public class HiloJuego implements Runnable{
             columnaActual = filaActual;
         }
         panelMatriz.setLayout(null);
-        
+        lVidas.setText("Vidas: " + vidas);
+        lPunteo.setText("Punteo: " + punteo);
         //se agrega el spMatriz a la ventana
         ventanaJuego.add(spMatriz);
         //se establecen las preferencias del panelMatriz
@@ -274,14 +291,11 @@ public class HiloJuego implements Runnable{
                         case 5://goomba
                         case 6://koopa
                             if(columnaActual.abajo != null)
-                            {
+                            {//se tienen filas abajo
                                 Elemento abajo = (Elemento)columnaActual.abajo.dato;
                                 if(abajo == null)
                                 {//no hay objeto para detenerce
-                                    if(columnaActual.abajo != null)
-                                    {//se tienen filas abajo
-                                        columnaActual.abajo.dato = columnaActual.dato;
-                                    }
+                                    columnaActual.abajo.dato = columnaActual.dato;
                                     columnaActual.dato = null;
                                 }
                                 else
@@ -298,6 +312,10 @@ public class HiloJuego implements Runnable{
                                         }
                                         else
                                         {//se le cambia la direccion al objeto
+                                            if(derecha.getTipo() == 7)
+                                            {//tiene al personaje principal del lado derecho se resta 1 a la vida
+                                                vidas--;
+                                            }
                                             x.setDireccion(-1);
                                             columnaActual.dato = x;
                                         }
@@ -312,6 +330,10 @@ public class HiloJuego implements Runnable{
                                         }
                                         else
                                         {//se le cambia la direccion al objeto
+                                            if(izquierda.getTipo() == 7)
+                                            {//tiene al personaje principal del lado izquierdo se resta 1 a la vida
+                                                vidas--;
+                                            }
                                             x.setDireccion(1);
                                             columnaActual.dato = x;
                                         }                                
@@ -337,25 +359,37 @@ public class HiloJuego implements Runnable{
                                         case 3://ficha
                                             columnaActual.abajo.dato = columnaActual.dato;
                                             columnaActual.dato = null;
-                                            punteo += 1;
+                                            punteo++;
                                             break;
                                         case 4://vida
                                             columnaActual.abajo.dato = columnaActual.dato;
                                             columnaActual.dato = null;
-                                            vidas += 1;
+                                            vidas++;
                                             break;
                                         case 5://goomba
                                             columnaActual.abajo.dato = columnaActual.dato;
                                             columnaActual.dato = null;
                                             break;
                                         case 6://koopa
-                                            
+                                            if(abajo.getDireccion() == 1)
+                                                columnaActual.abajo.izquierda.dato = columnaActual.dato;
+                                            else
+                                                columnaActual.abajo.derecha.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                            break;
+                                        case 8://castillo
+                                            columnaActual.abajo.dato = columnaActual.dato;
+                                            columnaActual.dato = null;
+                                            gano = true;
                                             break;
                                     }
                                 }
                             }
                             else
+                            {//el personaje cayo al vacio (se muere)
+                                vidas = 0;
                                 columnaActual.dato = null;
+                            }
                             break;
                         case 8://castillo
                             break;
@@ -369,6 +403,13 @@ public class HiloJuego implements Runnable{
             filaActual = filaActual.arriba;
             columnaActual = filaActual;
         }
+        if (vidas <= 0)
+        {
+            ejecutando = false;
+            url = getClass().getResource("/imagenes/luigipierde.png");
+            img = new ImageIcon(url);
+            JOptionPane.showMessageDialog(null, img);
+        }
     }
 
     @Override
@@ -376,23 +417,33 @@ public class HiloJuego implements Runnable{
     {
         while(ejecutando)
         {
-            if(cambio)
+            if(!gano)
             {
-                inicializar();
-                graficar();
-                actualizar();
-                try {
-                    hilo.sleep(500);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
+                if(cambio)
+                {
+                    inicializar();
+                    graficar();
+                    actualizar();
+                    try {
+                        hilo.sleep(500);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
+                else
+                    try {
+                        hilo.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
+                    }
             }
             else
-                try {
-                    hilo.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(HiloVista.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            {
+                ejecutando = false;
+                url = getClass().getResource("/imagenes/luigi.png");
+                img = new  ImageIcon(url);
+                JOptionPane.showMessageDialog(null, img);
+            }
             
         }
         detener();
@@ -490,24 +541,24 @@ public class HiloJuego implements Runnable{
             contTeclado++;
             if (contTeclado % 10000 == 1)
             {
+                filaActual = columnaActual = matriz.inicio;
+                //se busca al personaje
+                while(filaActual != null)
+                {
+                    while(columnaActual != null)
+                    {
+
+                        Elemento x = (Elemento) columnaActual.dato;
+                        if(x != null)
+                            if(x.getTipo() == 7)//se obtiene el nodo del personaje
+                                personaje = columnaActual;
+                        columnaActual = columnaActual.derecha;
+                    }
+                    filaActual = filaActual.arriba;
+                    columnaActual = filaActual;
+                }
                 if (e.VK_LEFT == e.getKeyCode())
                 {
-                    filaActual = columnaActual = matriz.inicio;
-                    //se busca al personaje
-                    while(filaActual != null)
-                    {
-                        while(columnaActual != null)
-                        {
-                            
-                            Elemento x = (Elemento) columnaActual.dato;
-                            if(x != null)
-                                if(x.getTipo() == 7)//se obtiene el nodo del personaje
-                                    personaje = columnaActual;
-                            columnaActual = columnaActual.derecha;
-                        }
-                        filaActual = filaActual.arriba;
-                        columnaActual = filaActual;
-                    }
                     Elemento x = (Elemento) personaje.dato;
                     if(x.getDireccion() == 1)
                         x.setDireccion(-1);
@@ -518,26 +569,36 @@ public class HiloJuego implements Runnable{
                             personaje.izquierda.dato = x;
                             personaje.dato = null;
                         }
+                        else
+                        {//hay algun objeto a la izquierda del personaje
+                            Elemento izquierda = (Elemento) personaje.izquierda.dato;
+                            switch(izquierda.getTipo())
+                            {
+                                case 3://ficha
+                                    personaje.izquierda.dato = x;
+                                    personaje.dato = null;
+                                    punteo++;
+                                    break;
+                                case 4://vida
+                                    personaje.izquierda.dato = x;
+                                    personaje.dato = null;
+                                    vidas++;
+                                    break;
+                                case 5://goomba
+                                    vidas--;
+                                    break;
+                                case 6://koopa
+                                    vidas--;
+                                    break;
+                                case 8://castillo
+                                    gano = true;
+                                    break;
+                            }                   
+                        }
                     }
                 }
                 if (e.VK_RIGHT == e.getKeyCode())
                 {
-                    filaActual = columnaActual = matriz.inicio;
-                    //se busca al personaje
-                    while(filaActual != null)
-                    {
-                        while(columnaActual != null)
-                        {
-                            
-                            Elemento x = (Elemento) columnaActual.dato;
-                            if(x != null)
-                                if(x.getTipo() == 7)//se obtiene el nodo del personaje
-                                    personaje = columnaActual;
-                            columnaActual = columnaActual.derecha;
-                        }
-                        filaActual = filaActual.arriba;
-                        columnaActual = filaActual;
-                    }
                     Elemento x = (Elemento) personaje.dato;
                     if(x.getDireccion() == -1)
                         x.setDireccion(1);
@@ -547,12 +608,74 @@ public class HiloJuego implements Runnable{
                         {//el personaje se puede mover para la derecha
                             personaje.derecha.dato = x;
                             personaje.dato = null;
-                        }                        
+                        }
+                        else
+                        {//hay algun objeto a la izquierda del personaje
+                            Elemento derecha = (Elemento) personaje.derecha.dato;
+                            switch(derecha.getTipo())
+                            {
+                                case 3://ficha
+                                    personaje.derecha.dato = x;
+                                    personaje.dato = null;
+                                    punteo++;
+                                    break;
+                                case 4://vida
+                                    personaje.derecha.dato = x;
+                                    personaje.dato = null;
+                                    vidas++;
+                                    break;
+                                case 5://goomba
+                                    vidas--;
+                                    break;
+                                case 6://koopa
+                                    vidas--;
+                                    break;
+                                case 8://castillo
+                                    gano = true;
+                                    break;
+                            }                   
+                        }
                     }
                 }
                 if (e.VK_UP == e.getKeyCode())
                 {
-                    System.out.println("Arriba");
+                    Elemento x = (Elemento) personaje.dato;
+                    if(x.getDireccion() == 1)
+                    {//el personaje esta viendo hacia la derecha
+                        //VERIFICACIONES PARA EL SALTO
+                        if(personaje.arriba != null)
+                        {
+                            if(personaje.arriba.arriba != null)
+                            {
+                                if(personaje.arriba.arriba.derecha != null)
+                                {
+                                    if(personaje.arriba.arriba.derecha.dato == null)
+                                        personaje.arriba.arriba.derecha.dato = x;
+                                    else                                      
+                                        personaje.arriba.arriba.dato = x;
+                                    personaje.dato = null;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {//el personaje esta viendo hacia la izquierda
+                        //VERIFICACIONES PARA EL SALTO
+                        if(personaje.arriba != null)
+                        {
+                            if(personaje.arriba.arriba != null)
+                            {
+                                if(personaje.arriba.arriba.izquierda != null)
+                                {
+                                    if(personaje.arriba.arriba.izquierda.dato == null)
+                                        personaje.arriba.arriba.izquierda.dato = x;
+                                    else
+                                        personaje.arriba.arriba.dato = x;
+                                    personaje.dato = null;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
